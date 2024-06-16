@@ -36,7 +36,7 @@ module rptr_empty
 
   reg [ADDRSIZE:0] rbin;
   wire [ADDRSIZE:0] rgraynext, rbinnext;
-
+  wire read_empty_val;
   //-------------------
   // GRAYSTYLE2 pointer
   //-------------------
@@ -116,7 +116,7 @@ module wptr_full
 
    reg [ADDRSIZE:0] wbin;
   wire [ADDRSIZE:0] wgraynext, wbinnext;
-
+  wire write_full_val;
   // GRAYSTYLE2 pointer
   always@(posedge write_clk or negedge write_reset_n)
     if (!write_reset_n)
@@ -163,10 +163,48 @@ module async_fifo
   wire [ADDRESSSIZE-1:0] waddr, raddr;
   wire [ADDRESSSIZE:0] wptr, rptr, wq2_rptr, rq2_wptr;
 
-  sync_r2w sync_r2w (.*);
-  sync_w2r sync_w2r (.*);
-  fifomem #(DATASIZE, ADDRESSSIZE) fifomem (.*);
-  rptr_empty #(ADDRESSSIZE) rptr_empty (.*);
-  wptr_full #(ADDRESSSIZE) wptr_full (.*);
+  sync_r2w sync_r2w (
+    .write_clk(write_clk),
+    .write_reset_n(write_reset_n),
+    .rptr(rptr),
+    .wq2_rptr(wq2_rptr)
+  );
+
+  sync_w2r sync_w2r (
+    .read_clk(read_clk),
+    .read_reset_n(read_reset_n),
+    .wptr(wptr),
+    .rq2_wptr(rq2_wptr)
+  );
+
+  fifomem #(DATASIZE, ADDRESSSIZE) fifomem (
+    .write_enable(write_enable),
+    .write_full(write_full),
+    .write_clk(write_clk),
+    .waddr(waddr),
+    .raddr(raddr),
+    .write_data(write_data),
+    .read_data(read_data)
+  );
+
+  rptr_empty #(ADDRESSSIZE) rptr_empty (
+    .read_enable(read_enable),
+    .read_clk(read_clk),
+    .read_reset_n(read_reset_n),
+    .rq2_wptr(rq2_wptr),
+    .read_empty(read_empty),
+    .raddr(raddr),
+    .rptr(rptr)
+  );
+
+  wptr_full #(ADDRESSSIZE) wptr_full (
+    .write_enable(write_enable),
+    .write_clk(write_clk),
+    .write_reset_n(write_reset_n),
+    .wq2_rptr(wq2_rptr),
+    .write_full(write_full),
+    .waddr(waddr),
+    .wptr(wptr)
+  );
 
 endmodule

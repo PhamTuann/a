@@ -19,7 +19,7 @@ module sent_rx_top(
 	//pulse check block <-> store fifo
 	wire [11:0] data_out;
 	wire write_enable_store_io;
-	wire start;
+	wire start_io;
 	//pulse check block <-> rx control
 	wire [2:0] done_pre_data_io;
 	wire [7:0] id_decode_io;
@@ -82,6 +82,8 @@ module sent_rx_top(
 	);
 	
 	sent_rx_control sent_rx_control(
+		.write_full(write_full),
+		.read_empty(read_empty),
 		.clk_rx(clk_rx),
 		.reset_n_rx(reset_n_rx),
 		.done_pre_data_i(done_pre_data_io),

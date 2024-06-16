@@ -6,7 +6,8 @@ module sent_rx_control(
 	//signals to pulse check block
 	input [2:0] done_pre_data_i,
 	input start_i,
-
+	input write_full,
+	input read_empty,
 	//signals to crc check
 	output reg [2:0] enable_crc_check_o,
 	input crc_check_done_i,
