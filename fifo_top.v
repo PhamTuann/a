@@ -42,7 +42,7 @@ module rptr_empty
   //-------------------
   always@(posedge read_clk or negedge read_reset_n)
     if (!read_reset_n)
-      {rbin, rptr} <= '0;
+      {rbin, rptr} <= 0;
     else
       {rbin, rptr} <= {rbinnext, rgraynext};
 
@@ -120,7 +120,7 @@ module wptr_full
   // GRAYSTYLE2 pointer
   always@(posedge write_clk or negedge write_reset_n)
     if (!write_reset_n)
-      {wbin, wptr} <= '0;
+      {wbin, wptr} <= 0;
     else
       {wbin, wptr} <= {wbinnext, wgraynext};
 

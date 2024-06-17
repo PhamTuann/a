@@ -35,17 +35,16 @@ module sent_rx_pulse_decode (
 	reg [10:0] b;
 	reg [20:0] counter2;
 	reg [10:0] count;
- 	reg [2:0] state_rx;
+	reg [2:0] state_rx;
 	reg [10:0] count_data;
 	reg [5:0] count_frame;
-	reg [3:0] data_nb;
 	reg [7:0] saved_bit3_status;
 	reg [17:0] saved_bit2_status;
 	reg done_decode_statuss;
 	reg done_one_nibble;
 	reg [3:0] count_nibbles;
 	reg first_frame;
-	reg count_enable;
+	reg [2:0] count_enable;
 	reg count_store;
 	reg [1:0] done_data_to_fifo;
 	reg [11:0] count_frame_ticks;
@@ -57,42 +56,52 @@ module sent_rx_pulse_decode (
 	reg check_next_nibble;
 	reg [3:0] store_nibble;
 	reg pause;
-    reg calib;
+	reg [3:0] data_nb;
+    reg check_channel_fast;
 	reg decode_config_bit;
+	reg calib;
 
 	always @(posedge clk_rx or negedge reset_n_rx) begin
 		if(!reset_n_rx) begin
-			state_rx <= IDLE;
-			prev_ticks <= 0;
+			prev_data_clk <= 0;
+			ticks <= 0;
+			b <= 0;
+			counter2 <= 0;
+			count <= 0;
+ 			state_rx <= IDLE;
+			count_data <= 0;
 			count_frame <= 0;
-			data_nb <= 0;
-			count_nibbles <= 0;		
-			first_frame <= 0;
-			config_bit_decode_o <= 0;
-			count_frame_ticks <= 0;
-			check_next_nibble <= 0;
-			store_nibble <= 0;
-			pause <= 0;	
-			
+			saved_bit3_status <= 0;
+			saved_bit2_status <= 0;
 			done_decode_statuss <= 0;
 			done_one_nibble <= 0;
-			pause_decode_o <= 0;
-			channel_format_decode_o <= 0;
+			count_nibbles <= 0;
+			first_frame <= 0;
 			count_enable <= 0;
-			count_store <= 0;
-			data_o <= 0;
+			done_data_to_fifo <= 0;
+			count_frame_ticks <= 0;
+			start_gen_ticks <= 0;
 			check_channel_format <= 0;
 			saved_channel_format <= 0;
 			done_state_data <= 0;
-			prev_data_clk <= 0;
-			start_gen_ticks <= 0;
-			b <= 0;
-			calib <= 0;
-			start_o <= 0;
-			count <= 0;
-			ticks <= 0;
-			write_enable_store_o <= 0;
-			decode_config_bit <= 0;
+			prev_ticks <= 0;
+			check_next_nibble <= 0;
+			store_nibble <= 0;
+			pause <= 0;
+    		calib <= 0;
+			decode_config_bit <= 0;	
+			data_check_crc_o <=0;
+			done_pre_data_o <=0;
+	 		channel_format_decode_o <=0;
+	 		id_decode_o <=0;
+	 		data_decode_o <=0;
+	 		pause_decode_o <=0;
+	 		config_bit_decode_o <=0;
+	 		start_o <=0;
+	 		write_enable_store_o <=0;
+	 		data_o <= 0;
+			check_channel_fast <= 0;	
+			count_store <= 0;
 		end
 		else begin
 			prev_ticks <= ticks; 
@@ -148,18 +157,21 @@ module sent_rx_pulse_decode (
 						end
 						data_nb <= count_data - 12;
 						done_decode_statuss <= 1;
-						
+						check_channel_fast <= 1;
 					end 
 				end
 				CHECK: begin
-					
+					if(check_channel_fast) begin 
+						if( data_nb[3:2] == 2'b00 ) begin
+							channel_format_decode_o <= 2'b10;
+						end
+					end
 					first_frame <= 1;
 					check_channel_format <= 1;
 
 					if(check_next_nibble) begin
 						if(count_data > 27) begin
 							state_rx <= CALIBRATION;
-					
 							count_frame_ticks <= 0;
 							count_data <= 0;	
 							check_next_nibble <= 0;
@@ -220,7 +232,6 @@ module sent_rx_pulse_decode (
 									store_nibble <= count_nibbles - 1 ; 
 									pause <= 1; 
 									pause_decode_o <= 1;
-									
 									done_pre_data_o <= 3'b001;
 									done_data_to_fifo <= 2'b01;
 									count_frame_ticks <= 0;
@@ -229,11 +240,10 @@ module sent_rx_pulse_decode (
 							else begin data_nb <= count_data - 12; done_one_nibble <= 1; count_nibbles <= count_nibbles + 1; end
 						end
 					end
-					if(data_nb[3:2] == 2'b00) begin
+					if(channel_format_decode_o == 2'b10) begin
 						channel_format_decode_o <= 2'b10;
 						if((sent_rx_i==1) && (prev_data_clk==0) && (count_data == 5)) begin
 							state_rx <= IDLE;
-							
 							case(count_nibbles)
 								7: begin done_state_data <= 2'b01; data_decode_o <= 16'h001; end
 								5: begin done_state_data <= 2'b10; data_decode_o <= 16'h003; end
@@ -247,7 +257,6 @@ module sent_rx_pulse_decode (
 									state_rx <= IDLE; 
 									pause <= 1; 
 									pause_decode_o <= 1;
-									
 									done_pre_data_o <= 3'b001;
 									done_data_to_fifo <= 2'b01;
 									count_frame_ticks <= 0;
@@ -275,7 +284,7 @@ module sent_rx_pulse_decode (
 					end
 					
 					//DECODE CONFIG BIT = STATUS NIBBLE IN 8TH FRAME
-					if(decode_config_bit) begin config_bit_decode_o <= data_nb[3]; decode_config_bit <= 0; end
+					if(decode_config_bit) config_bit_decode_o <= data_nb[3];
 					
 					if ((sent_rx_i==0) && (prev_data_clk == 1)) begin
 						data_nb <= count_data - 12;
@@ -303,7 +312,6 @@ module sent_rx_pulse_decode (
 								else begin
 									state_rx <= CALIBRATION; 
 									count_frame <= count_frame + 1; 
-									
 								end
 							end
 						end
@@ -403,14 +411,15 @@ module sent_rx_pulse_decode (
 				else if(saved_channel_format && count_frame == 17) begin done_pre_data_o <= 3'b101; end
 			end
 
+			//SHIFT DATA NIBBLE
 			//SHIFT DATA NIBBLE			
 			if(done_one_nibble) begin
 				data_check_crc_o <= {data_check_crc_o,data_nb};
 				done_one_nibble <= 0;
 			end
 			
-			if(done_state_data == 2'b01 && !done_one_nibble) begin  done_state_data <= 0;  done_data_to_fifo <= 2'b01;end
-			else if(done_state_data == 2'b10 && !done_one_nibble) begin done_state_data <= 0;  done_data_to_fifo <= 2'b10; end
+			if(done_state_data == 2'b01 && !done_one_nibble) begin done_state_data <= 0;  done_data_to_fifo <= 2'b01;end
+			else if(done_state_data == 2'b10 && !done_one_nibble) begin  done_state_data <= 0;  done_data_to_fifo <= 2'b10; end
 			else if(done_state_data == 2'b11 && !done_one_nibble) begin done_state_data <= 0;  done_data_to_fifo <= 2'b11;end
 
 			if(done_pre_data_o == 3'b100) begin
@@ -431,7 +440,7 @@ module sent_rx_pulse_decode (
 
 				if(config_bit_decode_o) begin
 					id_decode_o <= saved_bit3_status[7:4];
-					data_decode_o <= {saved_bit3_status[4:1], saved_bit2_status[11:0]};
+					data_decode_o <= {saved_bit3_status[3:0], saved_bit2_status[11:0]};
 				end
 				else begin
 					id_decode_o <= saved_bit3_status;
@@ -440,7 +449,9 @@ module sent_rx_pulse_decode (
 			end
 
 			//Turn off at next posedge clk_rx
-			if(start_o) start_o <=0;
+			if(start_o) start_o <=0;	
+			if(decode_config_bit) decode_config_bit <= 0;
+			if(check_channel_fast) check_channel_fast <= 0;
 			if(write_enable_store_o) write_enable_store_o <= 0;
 			if(done_pre_data_o != 0) done_pre_data_o <= 3'b000;
 		end

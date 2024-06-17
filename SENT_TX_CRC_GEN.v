@@ -7,10 +7,10 @@ module sent_tx_crc_gen(
 	input [2:0] enable_crc_gen_i,
 	input [23:0] data_gen_crc_i,
 	output reg [5:0] crc_gen_o,
-	output reg [1:0] crc_gen_done_o
+	output reg crc_gen_done_o
 	);
 
-	wire [5:0] lfsr_q; //current state
+	reg [5:0] lfsr_q; //current state
 	reg [5:0] lfsr_c; //next state
 	
 	always @(*) begin
@@ -47,22 +47,20 @@ module sent_tx_crc_gen(
 			default: lfsr_c = lfsr_q;
 		endcase
 	end
-	assign lfsr_q = (enable_crc_gen_i != 0) ? 6'b010101 : 0;
+
 	always @(posedge clk_tx or negedge reset_n_tx) begin
 		if(!reset_n_tx) begin
+			lfsr_q <= 6'b010101;
 			crc_gen_o <=0;
 			crc_gen_done_o <= 0;
 		end
 		else begin
 			if(enable_crc_gen_i != 0) begin
 				crc_gen_o <= lfsr_c;
-			
+				lfsr_q <= 6'b010101;
 			end
-			if(enable_crc_gen_i == 3'b101) begin
-				crc_gen_done_o <= 2'b10; //Gen done enhanced
-			end
-			if(enable_crc_gen_i == 3'b100) begin
-				crc_gen_done_o <= 2'b01; //gen done serial
+			if(enable_crc_gen_i == 3'b101 || enable_crc_gen_i == 3'b100) begin
+				crc_gen_done_o <= 1; //Gen done enhanced
 			end
 			if(crc_gen_done_o != 0) crc_gen_done_o <= 0; //Turn off at next posedge clk_tx
 		end

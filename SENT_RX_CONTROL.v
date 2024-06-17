@@ -6,8 +6,7 @@ module sent_rx_control(
 	//signals to pulse check block
 	input [2:0] done_pre_data_i,
 	input start_i,
-	input write_full,
-	input read_empty,
+
 	//signals to crc check
 	output reg [2:0] enable_crc_check_o,
 	input crc_check_done_i,
@@ -47,7 +46,7 @@ module sent_rx_control(
 	reg count_store;
 	reg [5:0] count_frame;
 	reg count_rx;
-	reg count_enable_rx;
+	reg [2:0] count_enable_rx;
 	reg [2:0] frame_format;
 	reg [5:0] count_check_done;
 	reg done_all;
@@ -74,30 +73,29 @@ module sent_rx_control(
 
 	always @(posedge clk_rx or negedge reset_n_rx) begin
 		if(!reset_n_rx) begin
-			enable_crc_check_o <= 0;
-			read_enable_store_o <= 0;
-			
+			data_fast1_decode <= 0;
+			data_fast2_decode <= 0;
 			count_store <= 0;
-			count_enable <= 0;
-			data_fast1_decode <= 0;
-			data_fast2_decode <= 0;
-			
 			count_frame <= 0;
-			write_enable_rx_o <= 0;
-			data_fast1_decode <= 0;
-			data_fast2_decode <= 0;
-			data_fast_o <= 0;
-			id_received_o <= 0;
-				data_received_o <= 0;
-				pause_received_o <= 0;
-				channel_format_received_o <= 0;
-				config_bit_received_o <= 0;
-			done_all <= 0;
-			channel_format <= 0;
-			read_store_fifo <= 0;
-			saved_frame_format <= 0;
 			count_rx <= 0;
 			count_enable_rx <= 0;
+			count_check_done <= 0;
+			done_all <= 0;
+			c <= 0;
+			channel_format <= 0;
+			read_store_fifo <= 0;
+			write_rx_fifo <= 0;
+			saved_frame_format <= 0;
+			count_enable <= 0;
+			enable_crc_check_o <= 0;
+			read_enable_store_o <= 0;
+			config_bit_received_o <= 0;
+			pause_received_o <= 0;
+			channel_format_received_o <= 0;
+			id_received_o <= 0;
+			data_received_o <= 0;
+			write_enable_rx_o <= 0;
+			data_fast_o <= 0;
 		end
 		else begin
 			//DONE PRE DATA FROM PULSE CHECK BLOCK -> TURN ON ENABLE CRC CHECK
@@ -142,28 +140,33 @@ module sent_rx_control(
 			case(saved_frame_format)
 				TWO_FAST_CHANNELS_12_12: begin
 					if(write_rx_fifo) begin
-						if(!count_enable_rx) begin
+						if(count_enable_rx) begin
 							write_enable_rx_o <= 1;
-							count_enable_rx <= 1;
-							data_fast_o <= data_fast1_decode;
+							count_enable_rx <= 0;
+							if(!count_rx) begin
+								data_fast_o <= data_fast1_decode; 
+								count_rx <= 1; 
 							end else begin 
-								write_enable_rx_o <= 1;
 								data_fast_o <= {data_fast2_decode[3:0],data_fast2_decode[7:4],data_fast2_decode[11:8]}; 
+								count_rx <= 0; 
 								write_rx_fifo <= 0;
 								read_store_fifo <= 1;
-								count_enable_rx <= 0;
 							end
+						end
+						else begin count_enable_rx <= count_enable_rx + 1; end
 					end
 				end
 
 				ONE_FAST_CHANNELS_12 : begin
 					if(write_rx_fifo) begin
-						if(!count_enable_rx) begin
+						if(count_enable_rx) begin
 							write_enable_rx_o <= 1;
+							count_enable_rx <= 0;
 							data_fast_o <= data_fast1_decode[11:0]; 
 							write_rx_fifo <= 0;
 							read_store_fifo <= 1;
 						end
+						else begin count_enable_rx <= count_enable_rx + 1; end
 					end
 				end
 
@@ -185,15 +188,16 @@ module sent_rx_control(
 						if(count_enable_rx) begin
 							write_enable_rx_o <= 1;
 							count_enable_rx <= 0;
-							
+							if(!count_rx) begin
 								data_fast_o <= data_fast1_decode; 
 								count_rx <= 1; 
 							end else begin 
-								write_enable_rx_o <= 1;
 								count_rx <= 0; 
 								write_rx_fifo <= 0;
 								read_store_fifo <= 1;
 							end
+						end
+						else begin count_enable_rx <= count_enable_rx + 1; end
 					end
 				end
 

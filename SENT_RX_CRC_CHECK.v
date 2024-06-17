@@ -12,7 +12,7 @@ module sent_rx_crc_check(
 	output reg valid_data_enhanced_o,
 	output reg valid_data_fast_o
 	);
-	wire [5:0] lfsr_q; //current state
+	reg [5:0] lfsr_q; //current state
 	reg [5:0] lfsr_c; //next state
 	always @(*) begin
 		case(enable_crc_check_i)
@@ -48,9 +48,10 @@ module sent_rx_crc_check(
 		default: lfsr_c = lfsr_q;
 		endcase
 	end
-	assign lfsr_q = (enable_crc_check_i != 0) ? 6'b010101 : 0;
+
 	always @(posedge clk_rx or negedge reset_n_rx) begin
 		if(!reset_n_rx) begin
+			lfsr_q <= 6'b010101;
 			valid_data_enhanced_o <= 0;
 			valid_data_serial_o  <= 0;
 		 	valid_data_fast_o <= 0;
@@ -75,6 +76,9 @@ module sent_rx_crc_check(
 					end
 				end
 			endcase
+			if(enable_crc_check_i != 0) begin
+				lfsr_q <= 6'b010101;
+			end
 
 			if(valid_data_enhanced_o || valid_data_serial_o || valid_data_fast_o || crc_check_done_o) begin //Turn off at next posedge clk_tx
 					valid_data_enhanced_o <= 0;

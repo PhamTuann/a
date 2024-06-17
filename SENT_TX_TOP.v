@@ -20,7 +20,7 @@ module sent_tx_top(
 	wire [2:0] enable_crc_gen_io;
 	wire [23:0] data_gen_crc_io;
 	wire [5:0] crc_gen_io;
-	wire [1:0] crc_gen_done_io;
+	wire crc_gen_done_io;
 	//gen ticks block <-> pulse gen block
 	wire ticks_io;
 

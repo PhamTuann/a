@@ -1,6 +1,6 @@
 module top
 	#(parameter ADDRESSWIDTH= 3,
-	parameter DATAWIDTH= 18)
+	parameter DATAWIDTH= 16)
 	(
 	input PCLK_tx,
 	input PRESETn_tx,
@@ -39,7 +39,6 @@ module top
 	wire [11:0] data_fast_io;
 	wire data_pulse_io;
 	wire write_enable_rx_io;
-	wire [17:0] reg_valid_rx;
 	wire [11:0] data_fast_out;
 
 	wire [11:0] reg_receive_rx;		//READ ONLY
@@ -111,8 +110,7 @@ module top
 		.data_fast_o(data_fast_out),
 		.channel_format_received_o(reg_command_rx[7]),
 		.pause_received_o(reg_command_rx[6]),
-		.config_bit_received_o(reg_command_rx[5]),
-		.valid_data(reg_valid_rx)
+		.config_bit_received_o(reg_command_rx[5])
 	);
 	
 	async_fifo rx_fifo(

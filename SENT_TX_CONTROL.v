@@ -13,7 +13,7 @@ module sent_tx_control(
 	
 	//signals to crc block
 	input [5:0] crc_gen_i,
-	input [1:0] crc_gen_done_i,
+	input crc_gen_done_i,
 	output reg [2:0] enable_crc_gen_o,	// 3'b001: 6nb, 3'b010: 4nb, 3'b011: 3nb, 3'b100: serial, 3'b101: enhanced
 	output reg [23:0] data_gen_crc_o,
 
@@ -87,8 +87,6 @@ module sent_tx_control(
 
 	//DEFINE FRAME FORMAT	
 	always @(*) begin
-		
-		
 		if(channel_format_i == 2'b10) begin
 			case(data_bit_field_i)
 				16'h001: frame_format = TWO_FAST_CHANNELS_12_12;
@@ -129,40 +127,41 @@ module sent_tx_control(
 	//FSM
 	always @(posedge clk_tx or negedge reset_n_tx) begin
 		if(!reset_n_tx) begin
+			enable_crc_gen_o <= 0;	
+			data_gen_crc_o <= 0;
 			data_nibble_o <= 0;
-			state <= IDLE;
+			pulse_o <= 0;
 			sync_o <= 0;
 			pause_o <= 0;
-			pulse_o <= 0;
 			idle_o <= 0;
+			load_bit_o <= 0;
+			state <= IDLE;
 			count_frame <= 0;
+			count_nibble <= 0;
+			count_load <= 0;
 			saved_short_data <= 0;
 			saved_enhanced_bit3 <= 0;
 			saved_enhanced_bit2 <= 0;
-			enable_crc_gen_o <= 0;
-			data_gen_crc_o <= 24'h000000;
-			saved_frame_format <= 0;
-			load_bit_o <= 0;
 			bit_counter <= 0;
-			count_load <= 0;
-			count_nibble <= 0;
+			saved_frame_format <= 0;
 		end
 		else begin
 			if(enable_crc_gen_o != 0) begin enable_crc_gen_o <= 0; end //Turn off at next posedge clk_tx
 
-			if(crc_gen_done_i == 2'b01) begin //saved_short_data
-				saved_short_data <= {id_i[3:0], data_bit_field_i[7:0], crc_gen_i[3:0]};
-			end
-
-			if(crc_gen_done_i == 2'b10) begin //saved_enhanced data with each config bit
-				if(!config_bit_i) begin
-					saved_enhanced_bit3 <= {7'b1111110, config_bit_i, id_i[7:4],1'b0,id_i[3:0], 1'b0};
-					saved_enhanced_bit2 <= {crc_gen_i, data_bit_field_i[11:0]};
-				end
-				else begin
-					saved_enhanced_bit3 <= {7'b1111110, config_bit_i, id_i[3:0], 1'b0, data_bit_field_i[15:12], 1'b0};
-					saved_enhanced_bit2 <= {crc_gen_i, data_bit_field_i[11:0]};
-				end
+			if(crc_gen_done_i) begin
+				case(channel_format_i)
+					2'b00: saved_short_data <= {id_i[3:0], data_bit_field_i[7:0], crc_gen_i[3:0]}; //saved_short_data
+					2'b01: begin // enhanced
+						if(!config_bit_i) begin
+							saved_enhanced_bit3 <= {7'b1111110, config_bit_i, id_i[7:4],1'b0,id_i[3:0], 1'b0};
+							saved_enhanced_bit2 <= {crc_gen_i, data_bit_field_i[11:0]};
+						end
+						else begin
+							saved_enhanced_bit3 <= {7'b1111110, config_bit_i, id_i[3:0], 1'b0, data_bit_field_i[15:12], 1'b0};
+							saved_enhanced_bit2 <= {crc_gen_i, data_bit_field_i[11:0]};
+						end
+					end
+				endcase 
 			end
 
 			case(state) 
@@ -290,63 +289,42 @@ module sent_tx_control(
 					//CONTROL pulse_o GEN
 					pulse_o <= 1;
 					
+					if(pulse_done_i) begin
+    						count_nibble <= count_nibble + 1;
+						data_gen_crc_o <= {data_gen_crc_o[19:0], 4'b0000};
+  					end
 
-					//CHANGE STATE
-					if( (saved_frame_format == TWO_FAST_CHANNELS_12_12) || (saved_frame_format == SECURE_SENSOR)|| (saved_frame_format == SINGLE_SENSOR_12_0)||
-					(saved_frame_format == TWO_FAST_CHANNELS_14_10) || (saved_frame_format == TWO_FAST_CHANNELS_16_8) ) begin
-						data_nibble_o <= data_gen_crc_o[23:20];
-						if(pulse_done_i) begin
-    							count_nibble <= count_nibble + 1;
-							data_gen_crc_o <= {data_gen_crc_o[19:0], 4'b0000};
-  						end
-					end
-					else if(saved_frame_format == ONE_FAST_CHANNELS_12) begin 
-						data_nibble_o <= data_gen_crc_o[11:8];
-						if(pulse_done_i) begin
-    							count_nibble <= count_nibble + 1;
-							data_gen_crc_o <= {data_gen_crc_o[7:0], 4'b0000};
-  						end
-					end
-					else if(saved_frame_format == HIGH_SPEED_ONE_FAST_CHANNEL_12) begin 
-						data_nibble_o <= data_gen_crc_o[15:12];
-						if(pulse_done_i) begin
-    							count_nibble <= count_nibble + 1;
-							data_gen_crc_o <= {data_gen_crc_o[11:0], 4'b0000};
-  						end
-					end
-					if( (saved_frame_format == TWO_FAST_CHANNELS_12_12) || (saved_frame_format == SINGLE_SENSOR_12_0)||
-					(saved_frame_format == TWO_FAST_CHANNELS_14_10) || (saved_frame_format == TWO_FAST_CHANNELS_16_8) ) begin
-					if(count_nibble == 6) begin
-						count_nibble <= 0;
-						state <= CRC;
-					end
-					else state <= DATA;
-				end
-				else if((saved_frame_format == SECURE_SENSOR)) begin
-					if(count_nibble == 6) begin
-						count_nibble <= 0;
-						state <= CRC;
-						bit_counter <= bit_counter + 1;
-					end
-					else state <= DATA;
-				end
-				else if(saved_frame_format == ONE_FAST_CHANNELS_12) begin 
-					if(count_nibble == 3) begin
-						count_nibble <= 0;
-						state <= CRC;
-					end
-					else state <= DATA;
-				end
-				else if(saved_frame_format == HIGH_SPEED_ONE_FAST_CHANNEL_12) begin 
-					if(count_nibble == 4) begin
-						count_nibble <= 0;
-						state <= CRC;
-					end
-					else state <= DATA;
-				end
+					case(saved_frame_format)
+						TWO_FAST_CHANNELS_12_12, SINGLE_SENSOR_12_0, TWO_FAST_CHANNELS_14_10, TWO_FAST_CHANNELS_16_8: begin 
+							data_nibble_o <= data_gen_crc_o[23:20]; 
+							if(count_nibble == 6) begin
+								state <= CRC;
+							end
+						end
+						SECURE_SENSOR: begin 
+							data_nibble_o <= data_gen_crc_o[23:20]; 
+							if(count_nibble == 6) begin
+								state <= CRC;
+								bit_counter <= bit_counter + 1;
+							end
+						end
+						ONE_FAST_CHANNELS_12: begin 
+							data_nibble_o <= data_gen_crc_o[11:8]; 
+							if(count_nibble == 3) begin
+								state <= CRC;
+							end
+						end
+						HIGH_SPEED_ONE_FAST_CHANNEL_12: begin 
+							data_nibble_o <= data_gen_crc_o[15:12]; 
+							if(count_nibble == 4) begin
+								state <= CRC;
+							end
+						end
+					endcase
 				end
 				
 				CRC: begin
+					count_nibble <= 0;
 					//ROLL BACK BIT COUNTER
 					if((saved_frame_format == SECURE_SENSOR) && (bit_counter == 255)) bit_counter <= 0; 
 

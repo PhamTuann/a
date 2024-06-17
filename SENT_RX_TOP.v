@@ -8,8 +8,7 @@ module sent_rx_top(
 	output pause_received_o,
 	output config_bit_received_o,
 	output [15:0] data_received_o,	
-	output [11:0] data_fast_o,
-	output [17:0] valid_data
+	output [11:0] data_fast_o
 	);
 	
 	//----------SENT RX------------------//
@@ -82,8 +81,6 @@ module sent_rx_top(
 	);
 	
 	sent_rx_control sent_rx_control(
-		.write_full(write_full),
-		.read_empty(read_empty),
 		.clk_rx(clk_rx),
 		.reset_n_rx(reset_n_rx),
 		.done_pre_data_i(done_pre_data_io),

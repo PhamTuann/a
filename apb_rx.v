@@ -1,6 +1,6 @@
 module apb_rx 
 	#(parameter ADDRESSWIDTH= 3,
-	parameter DATAWIDTH= 18)
+	parameter DATAWIDTH= 16)
 
 	(
 	input PCLK_rx,

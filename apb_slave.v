@@ -1,6 +1,6 @@
 module apb_tx
 	#(parameter ADDRESSWIDTH= 3,
-	parameter DATAWIDTH= 18)
+	parameter DATAWIDTH= 16)
 
 	(
 	input PCLK_tx,
@@ -33,7 +33,7 @@ module apb_tx
 			reg_id_tx <= 0;
 			reg_data_field_tx <= 0;
 			write_enable_tx <= 0;
-			prescale_tx <= 0;
+			prescale_tx <= 8'b00000000;
 		end
 		else begin
 			if (PENABLE_tx_i & PWRITE_tx_i & PSELx_tx_i) begin
