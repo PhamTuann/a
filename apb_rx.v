@@ -39,7 +39,7 @@ module apb_rx
 					7: PRDATA_rx_o <= reg_data_field_rx;
 					8: PRDATA_rx_o <= reg_status_rx;
 					9: PRDATA_rx_o <= reg_command_rx;
-					default: PRDATA_rx_o <= 0;
+					//default: PRDATA_rx_o <= 0;
 				endcase
 			end
 

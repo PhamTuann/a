@@ -150,14 +150,14 @@ module sent_rx_pulse_decode (
 					data_check_crc_o <= 0;
 					if((sent_rx_i==0) && (prev_data_clk==1)) begin
 				
-						if(!first_frame) begin state_rx <= CHECK; end
+						if(!first_frame) begin state_rx <= CHECK; check_channel_fast <= 1; end
 						else begin state_rx <= DATA; end
 						if(count_frame == 7 && saved_channel_format) begin
 							decode_config_bit <= 1;
 						end
 						data_nb <= count_data - 12;
 						done_decode_statuss <= 1;
-						check_channel_fast <= 1;
+						
 					end 
 				end
 				CHECK: begin

@@ -625,7 +625,7 @@ module test_top;
 		PENABLE_tx_i= 0;
 		PSELx_tx_i = 0;
 		
-		#50000000;
+		#7000000;
 		$finish;
 		
 		
