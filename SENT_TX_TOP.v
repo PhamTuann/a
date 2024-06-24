@@ -1,5 +1,5 @@
 module sent_tx_top
-	#(parameter ADDRESSWIDTH= 3,
+	#(parameter ADDRESSWIDTH= 5,
 	parameter DATAWIDTH= 16)
 	(
 	//clk_tx and reset_n_tx
@@ -18,12 +18,12 @@ module sent_tx_top
 	);
 
 	//REGISTER
-	wire [7:0] prescale_tx;
-	wire [7:0] reg_command_tx;		//RW
-	wire [11:0] reg_transmit_tx;		//RW
-	wire [7:0] reg_id_tx;			//RW
+	wire [15:0] prescale_tx;
+	wire [15:0] reg_command_tx;		//RW
+	wire [15:0] reg_transmit_tx;		//RW
+	wire [15:0] reg_id_tx;			//RW
 	wire [15:0] reg_data_field_tx;		//RW
-	wire [7:0] reg_status_tx;
+	wire [15:0] reg_status_tx;
 	//APB <-> FIFO TX AND RX
 	wire write_enable_tx;
 	wire read_enable_rx;
@@ -52,7 +52,8 @@ module sent_tx_top
 	wire done_pre_data_io;
 	wire [15:0] data_f1_io;
 	wire [11:0] data_f2_io;
-	assign a = reg_status_tx[6];
+	assign a = reg_status_tx[1];
+	assign reg_status_tx[15:3] = 0;
 	apb_tx apb_tx(
 		.PCLK_tx(PCLK_tx),
 		.PRESETn_tx(PRESETn_tx),
@@ -79,10 +80,10 @@ module sent_tx_top
 		.read_enable(read_enable_tx_io), 
 		.read_clk(clk_tx), 
 		.read_reset_n(PRESETn_tx),
-		.write_data(reg_transmit_tx),
+		.write_data(reg_transmit_tx[11:0]),
 		.read_data(data_fast_io),
-		.write_full(reg_status_tx[7]),
-		.read_empty(reg_status_tx[6])
+		.write_full(reg_status_tx[2]),
+		.read_empty(reg_status_tx[1])
 	);
 
 	//----------SENT TX------------------//
@@ -101,7 +102,7 @@ module sent_tx_top
 		//signals to fifo
 		.data_fast_i(data_fast_io),
 		.read_enable_tx_o(read_enable_tx_io),
-		.fifo_tx_empty_i(a)
+		.fifo_tx_empty_i(reg_status_tx[1])
 	);
 
 	sent_tx_control sent_tx_control(
@@ -114,7 +115,7 @@ module sent_tx_top
 		.optional_pause_i(reg_command_tx[5]),
 		.config_bit_i(reg_command_tx[4]),
 		.enable_i(reg_command_tx[3]),
-		.id_i(reg_id_tx),
+		.id_i(reg_id_tx[7:0]),
 		.data_bit_field_i(reg_data_field_tx),
 
 		//signals to crc block
@@ -134,7 +135,8 @@ module sent_tx_top
 		.data_f1_i(data_f1_io),
 		.data_f2_i(data_f2_io),
 		.load_bit_o(load_bit_io),
-		.done_pre_data_i(done_pre_data_io)
+		.done_pre_data_i(done_pre_data_io),
+		.ready_tx(reg_status_tx[0])
 	);
 
 	sent_tx_pulse_gen sent_tx_pulse_gen(
@@ -159,7 +161,7 @@ module sent_tx_top
 		.clk_tx(clk_tx),
 		.reset_n_tx(PRESETn_tx),
 		.ticks_o(ticks_io),
-		.divide_i(prescale_tx)
+		.divide_i(prescale_tx[7:0])
 	);
 
 	sent_tx_crc_gen sent_tx_crc_gen(

@@ -1,5 +1,5 @@
 module sent_rx_top
-	#(parameter ADDRESSWIDTH= 3,
+	#(parameter ADDRESSWIDTH= 5,
 	parameter DATAWIDTH= 16)
 	(
 	input clk_rx,
@@ -41,11 +41,11 @@ module sent_rx_top
 	wire valid_data_fast_io;
 	wire crc_check_done_io;
 
-	wire [11:0] reg_receive_rx;		//READ ONLY
-	wire [7:0] reg_id_rx;			//READ ONLY
+	wire [15:0] reg_receive_rx;		//READ ONLY
+	wire [15:0] reg_id_rx;			//READ ONLY
 	wire [15:0] reg_data_field_rx; 		//READ ONLY
-	wire [7:0] reg_status_rx;
-	wire [7:0] reg_command_rx;
+	wire [15:0] reg_status_rx;
+	wire [15:0] reg_command_rx;
 	wire [11:0] data_fast_out;
 	wire read_enable_rx;
 	
@@ -108,7 +108,7 @@ module sent_rx_top
 		.data_i(data_fast_in),
 		.write_enable_rx_o(write_enable_rx_io),
 		.data_fast_o(data_fast_out),
-		.id_received_o(reg_id_rx),
+		.id_received_o(reg_id_rx[7:0]),
 		.data_received_o(reg_data_field_rx),
 		.channel_format_received_o(reg_command_rx[7]),
 		.pause_received_o(reg_command_rx[6]),
@@ -125,7 +125,7 @@ module sent_rx_top
 		.read_clk(PCLK_rx), 
 		.read_reset_n(PRESETn_rx),
 		.write_data(data_fast_out),
-		.read_data(reg_receive_rx),
+		.read_data(reg_receive_rx[11:0]),
 		.write_full(reg_status_rx[7]),
 		.read_empty(reg_status_rx[6])
 	);

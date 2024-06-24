@@ -1,5 +1,5 @@
 module top
-	#(parameter ADDRESSWIDTH= 3,
+	#(parameter ADDRESSWIDTH= 5,
 	parameter DATAWIDTH= 16)
 	(
 	input PCLK_tx,

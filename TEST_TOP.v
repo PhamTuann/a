@@ -1,7 +1,7 @@
 `timescale 1ns/1ns
 module test_top;
 
-	localparam ADDRESSWIDTH= 3;
+	localparam ADDRESSWIDTH= 5;
 	localparam DATAWIDTH= 16;
 	
 	reg PCLK_tx;
@@ -55,25 +55,25 @@ module test_top;
 	initial begin
 		PCLK_tx = 0;
 		forever begin
-			PCLK_tx = #10 ~PCLK_tx;
+			PCLK_tx = #20 ~PCLK_tx;
 		end			
 	end
 	initial begin
 		PCLK_rx = 0;
 		forever begin
-			PCLK_rx = #10 ~PCLK_rx;
+			PCLK_rx = #20 ~PCLK_rx;
 		end
 	end
 	initial begin
 		clk_tx = 0;
 		forever begin
-			clk_tx = #60 ~clk_tx;
+			clk_tx = #50 ~clk_tx;
 		end		
 	end
 	initial begin
 		clk_rx = 0;
 		forever begin
-			clk_rx = #30 ~clk_rx;
+			clk_rx = #50 ~clk_rx;
 		end		
 	end
 	initial begin
@@ -96,7 +96,7 @@ module test_top;
 		//
 		repeat(5) @(posedge PCLK_tx);
 		PADDR_tx_i = 0;
-		PWDATA_tx_i = 8'h60;
+		PWDATA_tx_i = 8'h50;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
 		@(posedge PCLK_tx)
@@ -106,8 +106,8 @@ module test_top;
 		PSELx_tx_i = 0;	
 		//transmit data 1
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 2;
-		PWDATA_tx_i = 12'h001;
+		PADDR_tx_i = 8;
+		PWDATA_tx_i = 12'h005;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
 		@(posedge PCLK_tx)
@@ -117,7 +117,7 @@ module test_top;
 		PSELx_tx_i = 0;	
 		//transmit data 1
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 2;
+		PADDR_tx_i = 8;
 		PWDATA_tx_i = 12'h002;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
@@ -128,7 +128,7 @@ module test_top;
 		PSELx_tx_i = 0;	
 		//transmit data 1
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 2;
+		PADDR_tx_i = 8;
 		PWDATA_tx_i = 12'h003;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
@@ -139,7 +139,7 @@ module test_top;
 		PSELx_tx_i = 0;	
 		//transmit data 1
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 2;
+		PADDR_tx_i = 8;
 		PWDATA_tx_i = 12'h004;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
@@ -151,7 +151,7 @@ module test_top;
 
 		//transmit data 1
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 2;
+		PADDR_tx_i = 8;
 		PWDATA_tx_i = 12'h005;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
@@ -162,7 +162,7 @@ module test_top;
 		PSELx_tx_i = 0;	
 		//transmit data 1
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 2;
+		PADDR_tx_i = 8;
 		PWDATA_tx_i = 12'h006;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
@@ -173,7 +173,7 @@ module test_top;
 		PSELx_tx_i = 0;	
 		//transmit data 1
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 2;
+		PADDR_tx_i = 8;
 		PWDATA_tx_i = 12'h007;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
@@ -185,7 +185,7 @@ module test_top;
 
 		//transmit data 1
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 2;
+		PADDR_tx_i = 8;
 		PWDATA_tx_i = 12'h008;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
@@ -196,7 +196,7 @@ module test_top;
 		PSELx_tx_i = 0;	
 		//transmit data 2 
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 2;
+		PADDR_tx_i = 8;
 		PWDATA_tx_i = 12'h009;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
@@ -207,7 +207,7 @@ module test_top;
 		PSELx_tx_i = 0;
 		//transmit data 3
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 2;
+		PADDR_tx_i = 8;
 		PWDATA_tx_i = 12'h00a;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
@@ -218,7 +218,7 @@ module test_top;
 		PSELx_tx_i = 0;
 		//transmit data 4
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 2;
+		PADDR_tx_i = 8;
 		PWDATA_tx_i = 12'h00b;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
@@ -229,7 +229,7 @@ module test_top;
 		PSELx_tx_i = 0;
 		//transmit data 5
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 2;
+		PADDR_tx_i = 8;
 		PWDATA_tx_i = 12'h00c;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
@@ -240,7 +240,7 @@ module test_top;
 		PSELx_tx_i = 0;
 		//transmit data 6
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 2;
+		PADDR_tx_i = 8;
 		PWDATA_tx_i = 12'h00d;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
@@ -251,7 +251,7 @@ module test_top;
 		PSELx_tx_i = 0;
 		//transmit data 7
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 2;
+		PADDR_tx_i = 8;
 		PWDATA_tx_i = 12'h00e;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
@@ -262,7 +262,7 @@ module test_top;
 		PSELx_tx_i = 0;
 		//transmit data 8
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 2;
+		PADDR_tx_i = 8;
 		PWDATA_tx_i = 12'h00f;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
@@ -273,7 +273,7 @@ module test_top;
 		PSELx_tx_i = 0;
 		//transmit data 8
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 2;
+		PADDR_tx_i = 8;
 		PWDATA_tx_i = 12'h010;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
@@ -284,7 +284,7 @@ module test_top;
 		PSELx_tx_i = 0;
 		//transmit data 8
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 2;
+		PADDR_tx_i = 8;
 		PWDATA_tx_i = 12'h011;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
@@ -296,7 +296,7 @@ module test_top;
 
 		//transmit data 8
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 2;
+		PADDR_tx_i = 8;
 		PWDATA_tx_i = 12'h012;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
@@ -307,7 +307,7 @@ module test_top;
 		PSELx_tx_i = 0;
 		//transmit data 8
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 2;
+		PADDR_tx_i = 8;
 		PWDATA_tx_i = 12'h013;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
@@ -318,7 +318,7 @@ module test_top;
 		PSELx_tx_i = 0;
 		//transmit data 8
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 2;
+		PADDR_tx_i = 8;
 		PWDATA_tx_i = 12'h014;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
@@ -329,7 +329,7 @@ module test_top;
 		PSELx_tx_i = 0;
 		//transmit data 8
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 2;
+		PADDR_tx_i = 8;
 		PWDATA_tx_i = 12'h015;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
@@ -340,7 +340,7 @@ module test_top;
 		PSELx_tx_i = 0;
 		//transmit data 8
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 2;
+		PADDR_tx_i = 8;
 		PWDATA_tx_i = 12'h016;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
@@ -351,7 +351,7 @@ module test_top;
 		PSELx_tx_i = 0; 
 		//transmit data 8
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 2;
+		PADDR_tx_i = 8;
 		PWDATA_tx_i = 12'h017;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
@@ -362,7 +362,7 @@ module test_top;
 		PSELx_tx_i = 0;
 		//transmit data 8
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 2;
+		PADDR_tx_i = 8;
 		PWDATA_tx_i = 12'h018;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
@@ -373,7 +373,7 @@ module test_top;
 		PSELx_tx_i = 0;
 		//transmit data 8
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 2;
+		PADDR_tx_i = 8;
 		PWDATA_tx_i = 12'h019;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
@@ -384,7 +384,7 @@ module test_top;
 		PSELx_tx_i = 0;
 		//transmit data 8
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 2;
+		PADDR_tx_i = 8;
 		PWDATA_tx_i = 12'h01a;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
@@ -395,7 +395,7 @@ module test_top;
 		PSELx_tx_i = 0;
 		//transmit data 8
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 2;
+		PADDR_tx_i = 8;
 		PWDATA_tx_i = 12'h01b;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
@@ -406,7 +406,7 @@ module test_top;
 		PSELx_tx_i = 0;
 		//transmit data 8
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 2;
+		PADDR_tx_i = 8;
 		PWDATA_tx_i = 12'h01c;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
@@ -417,7 +417,7 @@ module test_top;
 		PSELx_tx_i = 0;
 		//transmit data 8
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 2;
+		PADDR_tx_i = 8;
 		PWDATA_tx_i = 12'h01d;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
@@ -428,7 +428,7 @@ module test_top;
 		PSELx_tx_i = 0;
 		//transmit data 8
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 2;
+		PADDR_tx_i = 8;
 		PWDATA_tx_i = 12'h01e;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
@@ -439,7 +439,7 @@ module test_top;
 		PSELx_tx_i = 0;
 		//transmit data 8
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 2;
+		PADDR_tx_i = 8;
 		PWDATA_tx_i = 12'h01f;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
@@ -450,7 +450,7 @@ module test_top;
 		PSELx_tx_i = 0;
 		//transmit data 8
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 2;
+		PADDR_tx_i = 8;
 		PWDATA_tx_i = 12'h020;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
@@ -461,7 +461,7 @@ module test_top;
 		PSELx_tx_i = 0;
 		//transmit data 8
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 2;
+		PADDR_tx_i = 8;
 		PWDATA_tx_i = 12'h021;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
@@ -472,7 +472,7 @@ module test_top;
 		PSELx_tx_i = 0;
 		//transmit data 8
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 2;
+		PADDR_tx_i = 8;
 		PWDATA_tx_i = 12'h022;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
@@ -483,7 +483,7 @@ module test_top;
 		PSELx_tx_i = 0;
 		//transmit data 8
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 2;
+		PADDR_tx_i = 8;
 		PWDATA_tx_i = 12'h023;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
@@ -494,7 +494,7 @@ module test_top;
 		PSELx_tx_i = 0;
 		//transmit data 8
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 2;
+		PADDR_tx_i = 8;
 		PWDATA_tx_i = 12'h024;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
@@ -505,7 +505,7 @@ module test_top;
 		PSELx_tx_i = 0;
 		//transmit data 8
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 2;
+		PADDR_tx_i = 8;
 		PWDATA_tx_i = 12'h025;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
@@ -516,7 +516,7 @@ module test_top;
 		PSELx_tx_i = 0;
 		//transmit data 8
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 2;
+		PADDR_tx_i = 8;
 		PWDATA_tx_i = 12'h026;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
@@ -527,7 +527,7 @@ module test_top;
 		PSELx_tx_i = 0;
 		//transmit data 8
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 2;
+		PADDR_tx_i = 8;
 		PWDATA_tx_i = 12'h027;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
@@ -538,7 +538,7 @@ module test_top;
 		PSELx_tx_i = 0;
 		//transmit data 8
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 2;
+		PADDR_tx_i = 8;
 		PWDATA_tx_i = 12'h028;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
@@ -549,7 +549,7 @@ module test_top;
 		PSELx_tx_i = 0;
 		//transmit data 8
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 2;
+		PADDR_tx_i = 8;
 		PWDATA_tx_i = 12'h029;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
@@ -560,7 +560,7 @@ module test_top;
 		PSELx_tx_i = 0;
 		//transmit data 8
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 2;
+		PADDR_tx_i = 8;
 		PWDATA_tx_i = 12'h02a;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
@@ -571,7 +571,7 @@ module test_top;
 		PSELx_tx_i = 0;
 		//transmit data 8
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 2;
+		PADDR_tx_i = 8;
 		PWDATA_tx_i = 12'h02a;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
@@ -583,8 +583,8 @@ module test_top;
 		//transmit data 8
 		//transmit data 8
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 3;
-		PWDATA_tx_i = 8'h08;
+		PADDR_tx_i = 12;
+		PWDATA_tx_i = 8'h04;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
 		@(posedge PCLK_tx)
@@ -594,7 +594,7 @@ module test_top;
 		PSELx_tx_i = 0;
 		//transmit data 8
 		@(posedge PCLK_tx)
-		PADDR_tx_i = 4;
+		PADDR_tx_i = 16;
 		PWDATA_tx_i = 16'h0001;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
@@ -604,8 +604,8 @@ module test_top;
 		PENABLE_tx_i = 0;
 		PSELx_tx_i = 0;
 		repeat(10) @(posedge PCLK_tx);
-		PADDR_tx_i = 1;
-		PWDATA_tx_i = 8'b01011000;
+		PADDR_tx_i = 4;
+		PWDATA_tx_i = 8'b00111000;
 		PWRITE_tx_i = 1; 
 		PSELx_tx_i = 1;
 		@(posedge PCLK_tx)
@@ -614,18 +614,9 @@ module test_top;
 		PENABLE_tx_i = 0;
 		PSELx_tx_i = 0;
 		//transmit data 8
-		repeat(20) @(posedge PCLK_tx)
-		PADDR_rx_i = 1;
-		PWDATA_tx_i = 8'b01010000;
-		PWRITE_tx_i = 1; 
-		PSELx_tx_i = 1;
-		@(posedge PCLK_tx)
-		PENABLE_tx_i = 1;
-		@(posedge PCLK_tx)
-		PENABLE_tx_i= 0;
-		PSELx_tx_i = 0;
 		
-		#7000000;
+		
+		#50000000;
 		$finish;
 		
 		

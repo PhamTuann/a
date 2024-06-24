@@ -29,7 +29,8 @@ module sent_tx_control(
 	input [15:0] data_f1_i,
 	input [11:0] data_f2_i,
 	input done_pre_data_i,
-	output reg [2:0] load_bit_o
+	output reg [2:0] load_bit_o,
+	output ready_tx
 	);
 
 	//frame format of fast channels
@@ -62,7 +63,7 @@ module sent_tx_control(
 	reg [2:0] saved_frame_format;
 	reg [23:0] saved_data_fast;
 
-
+	assign ready_tx = ((reset_n_tx == 1) && (state == IDLE)) ? 1 : 0;	
 	//PREPARE DATA CHANNEL TO GEN CRC
 	always @(*) begin
 		if(channel_format_i == 0) begin data_gen_crc = {id_i[3:0], data_bit_field_i[7:0]}; end

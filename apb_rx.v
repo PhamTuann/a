@@ -1,5 +1,5 @@
 module apb_rx 
-	#(parameter ADDRESSWIDTH= 3,
+	#(parameter ADDRESSWIDTH= 5,
 	parameter DATAWIDTH= 16)
 
 	(
@@ -12,11 +12,11 @@ module apb_rx
 	output reg [DATAWIDTH-1:0] PRDATA_rx_o,
 	output PREADY_rx_o,
 
-	input [11:0] reg_receive_rx,		//READ ONLY
-	input [7:0] reg_id_rx,			//READ ONLY
+	input [15:0] reg_receive_rx,		//READ ONLY
+	input [15:0] reg_id_rx,			//READ ONLY
 	input [15:0] reg_data_field_rx,		//READ ONLY
-	input [7:0] reg_command_rx,		//READ ONLY	
-	input [7:0] reg_status_rx,		//READ ONLY
+	input [15:0] reg_command_rx,		//READ ONLY	
+	input [15:0] reg_status_rx,		//READ ONLY
 	output reg read_enable_rx
 	
 	);
@@ -28,22 +28,23 @@ module apb_rx
 			read_enable_rx <= 0;
 		end
 		else begin
-			if(PENABLE_rx_i & !PWRITE_rx_i & PSELx_rx_i) begin
+			if(!PWRITE_rx_i & PSELx_rx_i) begin
 				case (PADDR_rx_i)
-					5: begin
+					0: begin
 						if(!reg_status_rx[7]) begin	
 							PRDATA_rx_o <= reg_receive_rx;
+							read_enable_rx <= 1;
 						end
 					end
-					6: PRDATA_rx_o <= reg_id_rx;
-					7: PRDATA_rx_o <= reg_data_field_rx;
-					8: PRDATA_rx_o <= reg_status_rx;
-					9: PRDATA_rx_o <= reg_command_rx;
+					4: PRDATA_rx_o <= reg_id_rx;
+					8: PRDATA_rx_o <= reg_data_field_rx;
+					12: PRDATA_rx_o <= reg_status_rx;
+					16: PRDATA_rx_o <= reg_command_rx;
 					//default: PRDATA_rx_o <= 0;
 				endcase
 			end
 
-			if (!PWRITE_rx_i & PADDR_rx_i == 5) read_enable_rx <= PENABLE_rx_i;
+			if (read_enable_rx) read_enable_rx <= 0;
 	
 		end
 	end
