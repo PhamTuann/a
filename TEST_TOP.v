@@ -617,7 +617,7 @@ module test_top;
 		
 		
 		#50000000;
-		$finish;
+			$finish;
 		
 		
 		
